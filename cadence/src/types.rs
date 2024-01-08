@@ -30,8 +30,8 @@ pub struct Counter {
 }
 
 impl Counter {
-    pub fn new(prefix: &str, key: &str, count: i64) -> Self {
-        Self::from(MetricFormatter::counter(prefix, key, MetricValue::Signed(count)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, count: i64) -> Self {
+        Self::from(MetricFormatter::counter(prefix, key, suffix, MetricValue::Signed(count)).format())
     }
 }
 
@@ -58,8 +58,8 @@ pub struct Timer {
 }
 
 impl Timer {
-    pub fn new(prefix: &str, key: &str, time: u64) -> Self {
-        Self::from(MetricFormatter::timer(prefix, key, MetricValue::Unsigned(time)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, time: u64) -> Self {
+        Self::from(MetricFormatter::timer(prefix, key, suffix, MetricValue::Unsigned(time)).format())
     }
 }
 
@@ -84,12 +84,12 @@ pub struct Gauge {
 }
 
 impl Gauge {
-    pub fn new(prefix: &str, key: &str, value: u64) -> Self {
-        Self::from(MetricFormatter::gauge(prefix, key, MetricValue::Unsigned(value)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, value: u64) -> Self {
+        Self::from(MetricFormatter::gauge(prefix, key, suffix, MetricValue::Unsigned(value)).format())
     }
 
-    pub fn new_f64(prefix: &str, key: &str, value: f64) -> Self {
-        Self::from(MetricFormatter::gauge(prefix, key, MetricValue::Float(value)).format())
+    pub fn new_f64(prefix: &str, key: &str, suffix: &str, value: f64) -> Self {
+        Self::from(MetricFormatter::gauge(prefix, key, suffix, MetricValue::Float(value)).format())
     }
 }
 
@@ -114,8 +114,8 @@ pub struct Meter {
 }
 
 impl Meter {
-    pub fn new(prefix: &str, key: &str, value: u64) -> Self {
-        Self::from(MetricFormatter::meter(prefix, key, MetricValue::Unsigned(value)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, value: u64) -> Self {
+        Self::from(MetricFormatter::meter(prefix, key, suffix, MetricValue::Unsigned(value)).format())
     }
 }
 
@@ -144,12 +144,12 @@ pub struct Histogram {
 }
 
 impl Histogram {
-    pub fn new(prefix: &str, key: &str, value: u64) -> Self {
-        Self::from(MetricFormatter::histogram(prefix, key, MetricValue::Unsigned(value)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, value: u64) -> Self {
+        Self::from(MetricFormatter::histogram(prefix, key, suffix, MetricValue::Unsigned(value)).format())
     }
 
-    pub fn new_f64(prefix: &str, key: &str, value: f64) -> Self {
-        Self::from(MetricFormatter::histogram(prefix, key, MetricValue::Float(value)).format())
+    pub fn new_f64(prefix: &str, key: &str, suffix: &str, value: f64) -> Self {
+        Self::from(MetricFormatter::histogram(prefix, key, suffix, MetricValue::Float(value)).format())
     }
 }
 
@@ -174,12 +174,12 @@ pub struct Distribution {
 }
 
 impl Distribution {
-    pub fn new(prefix: &str, key: &str, value: u64) -> Self {
-        Self::from(MetricFormatter::distribution(prefix, key, MetricValue::Unsigned(value)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, value: u64) -> Self {
+        Self::from(MetricFormatter::distribution(prefix, key, suffix, MetricValue::Unsigned(value)).format())
     }
 
-    pub fn new_f64(prefix: &str, key: &str, value: f64) -> Self {
-        Self::from(MetricFormatter::distribution(prefix, key, MetricValue::Float(value)).format())
+    pub fn new_f64(prefix: &str, key: &str, suffix: &str, value: f64) -> Self {
+        Self::from(MetricFormatter::distribution(prefix, key, suffix, MetricValue::Float(value)).format())
     }
 }
 
@@ -204,8 +204,8 @@ pub struct Set {
 }
 
 impl Set {
-    pub fn new(prefix: &str, key: &str, value: i64) -> Self {
-        Self::from(MetricFormatter::set(prefix, key, MetricValue::Signed(value)).format())
+    pub fn new(prefix: &str, key: &str, suffix: &str, value: i64) -> Self {
+        Self::from(MetricFormatter::set(prefix, key, suffix, MetricValue::Signed(value)).format())
     }
 }
 
@@ -313,73 +313,73 @@ mod tests {
 
     #[test]
     fn test_counter_to_metric_string() {
-        let counter = Counter::new("my.app.", "test.counter", 4);
+        let counter = Counter::new("my.app.", "test.counter", "", 4);
         assert_eq!("my.app.test.counter:4|c", counter.as_metric_str());
     }
 
     #[test]
     fn test_counter_no_prefix_to_metric_string() {
-        let counter = Counter::new("", "test.counter", 4);
+        let counter = Counter::new("", "test.counter", "", 4);
         assert_eq!("test.counter:4|c", counter.as_metric_str());
     }
 
     #[test]
     fn test_timer_to_metric_string() {
-        let timer = Timer::new("my.app.", "test.timer", 34);
+        let timer = Timer::new("my.app.", "test.timer", "", 34);
         assert_eq!("my.app.test.timer:34|ms", timer.as_metric_str());
     }
 
     #[test]
     fn test_timer_no_prefix_to_metric_string() {
-        let timer = Timer::new("", "test.timer", 34);
+        let timer = Timer::new("", "test.timer", "", 34);
         assert_eq!("test.timer:34|ms", timer.as_metric_str());
     }
 
     #[test]
     fn test_gauge_to_metric_string() {
-        let gauge = Gauge::new("my.app.", "test.gauge", 2);
+        let gauge = Gauge::new("my.app.", "test.gauge", "", 2);
         assert_eq!("my.app.test.gauge:2|g", gauge.as_metric_str());
     }
 
     #[test]
     fn test_gauge_no_prefix_to_metric_string() {
-        let gauge = Gauge::new("", "test.gauge", 2);
+        let gauge = Gauge::new("", "test.gauge", "", 2);
         assert_eq!("test.gauge:2|g", gauge.as_metric_str());
     }
 
     #[test]
     fn test_meter_to_metric_string() {
-        let meter = Meter::new("my.app.", "test.meter", 5);
+        let meter = Meter::new("my.app.", "test.meter", "", 5);
         assert_eq!("my.app.test.meter:5|m", meter.as_metric_str());
     }
 
     #[test]
     fn test_meter_no_prefix_to_metric_string() {
-        let meter = Meter::new("", "test.meter", 5);
+        let meter = Meter::new("", "test.meter", "", 5);
         assert_eq!("test.meter:5|m", meter.as_metric_str());
     }
 
     #[test]
     fn test_histogram_to_metric_string() {
-        let histogram = Histogram::new("my.app.", "test.histogram", 45);
+        let histogram = Histogram::new("my.app.", "test.histogram", "", 45);
         assert_eq!("my.app.test.histogram:45|h", histogram.as_metric_str());
     }
 
     #[test]
     fn test_histogram_no_prefix_to_metric_string() {
-        let histogram = Histogram::new("", "test.histogram", 45);
+        let histogram = Histogram::new("", "test.histogram", "", 45);
         assert_eq!("test.histogram:45|h", histogram.as_metric_str());
     }
 
     #[test]
     fn test_set_to_metric_string() {
-        let set = Set::new("my.app.", "test.set", 4);
+        let set = Set::new("my.app.", "test.set", "", 4);
         assert_eq!("my.app.test.set:4|s", set.as_metric_str());
     }
 
     #[test]
     fn test_set_no_prefix_to_metric_string() {
-        let set = Set::new("", "test.set", 4);
+        let set = Set::new("", "test.set", "", 4);
         assert_eq!("test.set:4|s", set.as_metric_str());
     }
 
