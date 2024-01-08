@@ -974,7 +974,7 @@ where
 {
     fn count_with_tags<'a>(&'a self, key: &'a str, value: T) -> MetricBuilder<'_, '_, Counter> {
         match value.try_to_value() {
-            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::counter(&self.prefix, &self.suffix, key, v), self)
+            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::counter(&self.prefix, key, &self.suffix, v), self)
                 .with_tags(self.tags()),
             Err(e) => MetricBuilder::from_error(e, self),
         }
@@ -989,7 +989,7 @@ where
 {
     fn time_with_tags<'a>(&'a self, key: &'a str, time: T) -> MetricBuilder<'_, '_, Timer> {
         match time.try_to_value() {
-            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::timer(&self.prefix, &self.suffix, key, v), self)
+            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::timer(&self.prefix, key, &self.suffix, v), self)
                 .with_tags(self.tags()),
             Err(e) => MetricBuilder::from_error(e, self),
         }
@@ -1002,7 +1002,7 @@ where
 {
     fn gauge_with_tags<'a>(&'a self, key: &'a str, value: T) -> MetricBuilder<'_, '_, Gauge> {
         match value.try_to_value() {
-            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::gauge(&self.prefix, &self.suffix, key, v), self)
+            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::gauge(&self.prefix, key, &self.suffix, v), self)
                 .with_tags(self.tags()),
             Err(e) => MetricBuilder::from_error(e, self),
         }
@@ -1015,7 +1015,7 @@ where
 {
     fn meter_with_tags<'a>(&'a self, key: &'a str, value: T) -> MetricBuilder<'_, '_, Meter> {
         match value.try_to_value() {
-            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::meter(&self.prefix, &self.suffix, key, v), self)
+            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::meter(&self.prefix, key, &self.suffix, v), self)
                 .with_tags(self.tags()),
             Err(e) => MetricBuilder::from_error(e, self),
         }
@@ -1028,7 +1028,7 @@ where
 {
     fn histogram_with_tags<'a>(&'a self, key: &'a str, value: T) -> MetricBuilder<'_, '_, Histogram> {
         match value.try_to_value() {
-            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::histogram(&self.prefix, &self.suffix, key, v), self)
+            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::histogram(&self.prefix, key, &self.suffix, v), self)
                 .with_tags(self.tags()),
             Err(e) => MetricBuilder::from_error(e, self),
         }
@@ -1041,7 +1041,7 @@ where
 {
     fn distribution_with_tags<'a>(&'a self, key: &'a str, value: T) -> MetricBuilder<'_, '_, Distribution> {
         match value.try_to_value() {
-            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::distribution(&self.prefix, &self.suffix, key, v), self)
+            Ok(v) => MetricBuilder::from_fmt(MetricFormatter::distribution(&self.prefix, key, &self.suffix, v), self)
                 .with_tags(self.tags()),
             Err(e) => MetricBuilder::from_error(e, self),
         }
@@ -1089,6 +1089,16 @@ mod tests {
         let res = client.count("some.method", 1);
 
         assert_eq!("some.method:1|c", res.unwrap().as_metric_str());
+    }
+
+    #[test]
+    fn test_statsd_client_count_with_suffix() {
+        let client = StatsdClient::builder("prefix", NopMetricSink)
+            .with_suffix("suffix")
+            .build();
+        let res = client.count("some.counter", 3);
+
+        assert_eq!("prefix.some.counter:3|c", res.unwrap().as_metric_str());
     }
 
     #[test]

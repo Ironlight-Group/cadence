@@ -500,6 +500,12 @@ mod tests {
     }
 
     #[test]
+    fn test_metric_formatter_counter_suffix() {
+        let fmt = MetricFormatter::counter("prefix.", "some.key", ".suffix", MetricValue::Signed(4));
+        assert_eq!("prefix.some.key.suffix:4|c", &fmt.format());
+    }
+
+    #[test]
     fn test_metric_formatter_counter_with_tags() {
         let mut fmt = MetricFormatter::counter("prefix.", "some.key", "", MetricValue::Signed(4));
         fmt.with_tag("host", "app03.example.com");
